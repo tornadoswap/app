@@ -1,0 +1,273 @@
+<!doctype html>
+<html lang="en">
+<meta http-equiv="content-type" content="text/html;charset=utf-8" />
+<head>
+	<meta charset="utf-8"/>
+	<script async src="https://www.googletagmanager.com/gtag/js?id=G-L9J5M6P25T"></script>
+	<script>function gtag(){dataLayer.push(arguments)}window.dataLayer=window.dataLayer||[],gtag("js",new Date),gtag("config","G-L9J5M6P25T")</script>
+	<title>Error404 Finance | From the deep web to the outside world</title>
+	<link href="static/css/2.1ab024c8.chunk.css" rel="stylesheet">
+	<link href="static/css/main.972c89d7.chunk.css" rel="stylesheet">
+	<style type="text/css">
+		body{
+			overflow-x: hidden; 
+		}
+	</style>
+	
+</head>
+
+
+
+<body>
+	<canvas id="canvas" style="position : absolute; top : 0px; left : 0px;"></canvas>
+<script type="text/javascript" src="http://sheepeuh.com/rain/dat.gui.js"></script>
+
+<script type="text/javascript">
+	requestAnimFrame = (function() {
+return window.requestAnimationFrame ||
+window.webkitRequestAnimationFrame ||
+window.mozRequestAnimationFrame ||
+window.oRequestAnimationFrame ||
+window.msRequestAnimationFrame ||
+function(callback) {
+window.setTimeout(callback, 1000/60);
+};
+})();
+
+var canvas = document.getElementById('canvas');
+var ctx = canvas.getContext('2d');
+
+var width = 0;
+var height = 0;
+
+window.onresize = function onresize() {
+	width = canvas.width = window.innerWidth;
+	height = canvas.height = window.innerHeight;
+}
+
+window.onresize();
+
+var mouse = {
+	X : 0,
+	Y : 0
+}
+
+window.onmousemove = function onmousemove(event) {
+	mouse.X = event.clientX;
+	mouse.Y = event.clientY;
+}
+
+var particules = [];
+var gouttes = [];
+var nombrebase = 5;
+var nombreb = 2;
+
+var controls = {
+	rain : 2,
+	Object : "Nothing",
+	alpha : 1,
+	color : 200,
+	auto : false,
+	opacity : 1,
+	saturation : 100,
+	lightness : 50,
+	back : 100,
+	red : 0,
+	green : 0,
+	blue : 0,
+	multi : false,
+	speed : 2
+};
+
+function Rain(X, Y, nombre) {
+	if (!nombre) {
+		nombre = nombreb;
+	}
+	while (nombre--) {
+		particules.push( 
+		{
+			vitesseX : (Math.random() * 0.25),
+			vitesseY : (Math.random() * 9) + 1,
+			X : X,
+			Y : Y,
+			alpha : 1,
+			couleur : "hsla(" + controls.color + "," + controls.saturation + "%, " + controls.lightness + "%," + controls.opacity + ")",
+		})
+	}
+}
+
+function explosion(X, Y, couleur, nombre) {
+	if (!nombre) {
+		nombre = nombrebase;
+	}
+	while (nombre--) {
+		gouttes.push( 
+		{
+			vitesseX : (Math.random() * 4-2	),
+			vitesseY : (Math.random() * -4 ),
+			X : X,
+			Y : Y,
+			radius : 0.65 + Math.floor(Math.random() *1.6),
+			alpha : 1,
+			couleur : couleur
+		})
+	}
+}
+
+function rendu(ctx) {
+
+	if (controls.multi == true) {
+		controls.color = Math.random()*360;
+	}
+
+	ctx.save();
+	ctx.fillStyle = 'rgba('+controls.red+','+controls.green+','+controls.blue+',' + controls.alpha + ')';
+	ctx.fillRect(0, 0, width, height);
+	
+	var particuleslocales = particules;
+	var goutteslocales = gouttes;
+	var tau = Math.PI * 2;
+
+	for (var i = 0, particulesactives; particulesactives = particuleslocales[i]; i++) {
+			
+		ctx.globalAlpha = particulesactives.alpha;
+		ctx.fillStyle = particulesactives.couleur;
+		ctx.fillRect(particulesactives.X, particulesactives.Y, particulesactives.vitesseY/4, particulesactives.vitesseY);
+	}
+
+	for (var i = 0, gouttesactives; gouttesactives = goutteslocales[i]; i++) {
+			
+		ctx.globalAlpha = gouttesactives.alpha;
+		ctx.fillStyle = gouttesactives.couleur;
+		
+		ctx.beginPath();
+		ctx.arc(gouttesactives.X, gouttesactives.Y, gouttesactives.radius, 0, tau);
+		ctx.fill();
+	}
+		ctx.strokeStyle = "white";
+		ctx.lineWidth   = 2;
+
+		if (controls.Object == "Umbrella") {
+			ctx.beginPath();
+			ctx.arc(mouse.X, mouse.Y+10, 138, 1 * Math.PI, 2 * Math.PI, false);
+			ctx.lineWidth = 3;
+			ctx.strokeStyle = "hsla(0,100%,100%,1)";
+			ctx.stroke();
+		}
+		if (controls.Object == "Cup") {
+			ctx.beginPath();
+			ctx.arc(mouse.X, mouse.Y+10, 143, 1 * Math.PI, 2 * Math.PI, true);
+			ctx.lineWidth = 3;
+			ctx.strokeStyle = "hsla(0,100%,100%,1)";
+			ctx.stroke();
+		}
+		if (controls.Object == "Circle") {
+			ctx.beginPath();
+			ctx.arc(mouse.X, mouse.Y+10, 138, 1 * Math.PI, 3 * Math.PI, false);
+			ctx.lineWidth = 3;
+			ctx.strokeStyle = "hsla(0,100%,100%,1)";
+			ctx.stroke();
+		}
+	ctx.restore();
+	
+	if (controls.auto) {
+		controls.color += controls.speed;
+		if (controls.color >=360) {
+			controls.color = 0;
+		}
+	}
+}
+
+function update() {
+
+	var particuleslocales = particules;
+	var goutteslocales = gouttes;
+	
+	for (var i = 0, particulesactives; particulesactives = particuleslocales[i]; i++) {
+		particulesactives.X += particulesactives.vitesseX;
+		particulesactives.Y += particulesactives.vitesseY+5;
+		if (particulesactives.Y > height-15) {
+			particuleslocales.splice(i--, 1);
+			explosion(particulesactives.X, particulesactives.Y, particulesactives.couleur);
+		}
+		var umbrella = (particulesactives.X - mouse.X)*(particulesactives.X - mouse.X) + (particulesactives.Y - mouse.Y)*(particulesactives.Y - mouse.Y);
+			if (controls.Object == "Umbrella") {
+				if (umbrella < 20000 && umbrella > 10000 && particulesactives.Y < mouse.Y) {
+					explosion(particulesactives.X, particulesactives.Y, particulesactives.couleur);
+					particuleslocales.splice(i--, 1);
+				}
+			}
+			if (controls.Object == "Cup") {
+				if (umbrella > 20000 && umbrella < 30000 && particulesactives.X+138 > mouse.X && particulesactives.X-138 < mouse.X && particulesactives.Y > mouse.Y) {
+					explosion(particulesactives.X, particulesactives.Y, particulesactives.couleur);
+					particuleslocales.splice(i--, 1);
+				}
+			}
+			if (controls.Object == "Circle") {
+				if (umbrella < 20000) {
+					explosion(particulesactives.X, particulesactives.Y, particulesactives.couleur);
+					particuleslocales.splice(i--, 1);
+				}
+			}
+	}
+
+	for (var i = 0, gouttesactives; gouttesactives = goutteslocales[i]; i++) {
+		gouttesactives.X += gouttesactives.vitesseX;
+		gouttesactives.Y += gouttesactives.vitesseY;
+		gouttesactives.radius -= 0.075;
+		if (gouttesactives.alpha > 0) {
+			gouttesactives.alpha -= 0.005;
+		} else {
+			gouttesactives.alpha = 0;
+		}
+		if (gouttesactives.radius < 0) {
+			goutteslocales.splice(i--, 1);
+		}
+	}
+
+	var i = controls.rain;
+	while (i--) {
+		Rain(Math.floor((Math.random()*width)), -15);
+	}
+}
+
+function Screenshot() {
+	window.open(canvas.toDataURL());
+}
+
+window.onload = function() {
+	var gui = new dat.GUI();
+	gui.add(controls, 'rain', 1, 10).name("Rain intensity").step(1);
+	gui.add(controls, 'alpha', 0.1, 1).name("Alpha").step(0.1);
+	gui.add(controls, 'color', 0, 360).name("Color").step(1).listen();
+	gui.add(controls, 'auto').name("Automatic color");
+	gui.add(controls, 'speed', 1, 10).name("Speed color").step(1);
+	gui.add(controls, 'multi').name("Multicolor");
+	gui.add(controls, 'saturation', 0, 100).name("Saturation").step(1);
+	gui.add(controls, 'lightness', 0, 100).name("Lightness").step(1);
+	gui.add(controls, 'opacity', 0.0, 1).name("Opacity").step(0.1);
+	gui.add(controls, 'Object', ['Nothing','Circle','Umbrella', 'Cup']);
+	gui.add(window, 'Screenshot');
+	var Background = gui.addFolder('Background color');
+	Background.add(controls, 'red', 0, 255).step(1);
+	Background.add(controls, 'green', 0, 255).step(1);
+	Background.add(controls, 'blue', 0, 255).step(1);
+};
+
+(function boucle() {
+	requestAnimFrame(boucle);
+	update();
+	rendu(ctx);
+})();
+</script>
+	<noscript>You need to enable JavaScript to run this app.</noscript>
+	<div id="container"></div>
+	<div id="root"><div><div class="backgroud"><img class="layer bg" src="https://upload.wikimedia.org/wikipedia/commons/8/89/HD_transparent_picture.png" alt="404"></div><div class="Particles"><div id="tsparticles"><canvas style="z-index: 1; height: 100%; width: 100%; pointer-events: initial;" class="tsparticles-canvas-el" width="1920" height="548"></canvas></div></div><div class="indexApp"><div class="toastGlobal"><div></div></div><nav class="nav_header sticky  navbar navbar-expand-lg navbar-dark sticky-top fixed-top"><a href="/#/" class="logo_text navbar-brand"><img alt="" src="https://tornadoswap.online/img/logo2.png" class="d-inline-block align-to logo_header" width="34" height="34"><span class="text_logo"> TornadoSwap</span></a></nav><main><div><div class="container_welcome"><div class="vertical-center"><div class="welcome"><div class="box"><div class="ttl">Yield Farming Optimizer for Binance Smart Chain <br> - <br> TornadoSwap <h3> *Open source project*</h3></div><a class="btn primary" href="#/farms/">Launch App</a><div class="social"><a href="https://github.com/tornadoswap" target="_blank" rel="noreferrer" aria-label="github"><i class="fab fa-github-square"></i></a></a><a href="https://t.me/tornadoswap" target="_blank" rel="noreferrer" aria-label="telegram"><i class="fab fa-telegram"></i></a><a href="https://t.me/tornadoswap" target="_blank" rel="noreferrer" aria-label="medium"><i class="fab fa-telegram-plane"></i></a></a></div><p align="center"><img style="width:300px" src="https://tornadoswap.online/img/logo2.png"></p></div></div></div></div></div></main></div></div></div>
+
+	
+
+<script>!function(e){function r(r){for(var n,a,i=r[0],c=r[1],l=r[2],s=0,p=[];s<i.length;s++)a=i[s],Object.prototype.hasOwnProperty.call(o,a)&&o[a]&&p.push(o[a][0]),o[a]=0;for(n in c)Object.prototype.hasOwnProperty.call(c,n)&&(e[n]=c[n]);for(f&&f(r);p.length;)p.shift()();return u.push.apply(u,l||[]),t()}function t(){for(var e,r=0;r<u.length;r++){for(var t=u[r],n=!0,i=1;i<t.length;i++){var c=t[i];0!==o[c]&&(n=!1)}n&&(u.splice(r--,1),e=a(a.s=t[0]))}return e}var n={},o={1:0},u=[];function a(r){if(n[r])return n[r].exports;var t=n[r]={i:r,l:!1,exports:{}};return e[r].call(t.exports,t,t.exports,a),t.l=!0,t.exports}a.e=function(e){var r=[],t=o[e];if(0!==t)if(t)r.push(t[2]);else{var n=new Promise((function(r,n){t=o[e]=[r,n]}));r.push(t[2]=n);var u,i=document.createElement("div");i.charset="utf-8",i.timeout=120,a.nc&&i.setAttribute("nonce",a.nc),i.src=function(e){return a.p+"static/js/"+({}[e]||e)+"."+{3:"e96a131a",4:"f24c7362"}[e]+".chunk.js"}(e);var c=new Error;u=function(r){i.onerror=i.onload=null,clearTimeout(l);var t=o[e];if(0!==t){if(t){var n=r&&("load"===r.type?"missing":r.type),u=r&&r.target&&r.target.src;c.message="Loading chunk "+e+" failed.\n("+n+": "+u+")",c.name="ChunkLoadError",c.type=n,c.request=u,t[1](c)}o[e]=void 0}};var l=setTimeout((function(){u({type:"timeout",target:i})}),12e4);i.onerror=i.onload=u,document.head.appendChild(i)}return Promise.all(r)},a.m=e,a.c=n,a.d=function(e,r,t){a.o(e,r)||Object.defineProperty(e,r,{enumerable:!0,get:t})},a.r=function(e){"undefined"!=typeof Symbol&&Symbol.toStringTag&&Object.defineProperty(e,Symbol.toStringTag,{value:"Module"}),Object.defineProperty(e,"__esModule",{value:!0})},a.t=function(e,r){if(1&r&&(e=a(e)),8&r)return e;if(4&r&&"object"==typeof e&&e&&e.__esModule)return e;var t=Object.create(null);if(a.r(t),Object.defineProperty(t,"default",{enumerable:!0,value:e}),2&r&&"string"!=typeof e)for(var n in e)a.d(t,n,function(r){return e[r]}.bind(null,n));return t},a.n=function(e){var r=e&&e.__esModule?function(){return e.default}:function(){return e};return a.d(r,"a",r),r},a.o=function(e,r){return Object.prototype.hasOwnProperty.call(e,r)},a.p="/",a.oe=function(e){throw console.error(e),e};var i=this.webpackJsonperror404=this.webpackJsonperror404||[],c=i.push.bind(i);i.push=r,i=i.slice();for(var l=0;l<i.length;l++)r(i[l]);var f=c;t()}([])</script>
+
+		<script src="static/js/2.507f9fe3.chunk.js"></script>
+	</body>
+</html>
